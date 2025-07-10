@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  name           String
+  email          String    @unique
+  password       String
+  role           Role
+  reviewsGiven   Review[]  @relation("Reviewer")  // 👈 relation from reviewer → review
+  reviewsReceived Review[] @relation("Reviewee")  // 👈 relation from reviewee → review
+}
+
+model Review {
+  id          Int    @id @default(autoincrement())
+  reviewerId  Int
+  revieweeId  Int
+  comment     String
+  rating      Int
+
+  reviewer    User   @relation("Reviewer", fields: [reviewerId], references: [id])
+  reviewee    User   @relation("Reviewee", fields: [revieweeId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  USER
+}
